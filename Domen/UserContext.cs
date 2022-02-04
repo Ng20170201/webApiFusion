@@ -35,15 +35,11 @@ namespace webApiFusion.Data
 
             modelBuilder.Entity<Permission>().HasKey(p => new {p.PermissionId });
 
-            //modelBuilder.Entity<Role>()
-            //    .HasOne(r => r.User)
-            //    .WithMany(u => u.Roles).IsRequired(true);
+           
 
             modelBuilder.Entity<User>().HasMany(u => u.Roles).WithOne(r => r.User).IsRequired(true);
 
-            //modelBuilder.Entity<Permission>()
-            //    .HasOne(p => p.Role)
-            //    .WithMany(u => u.Permissions).IsRequired(true);
+      
 
             modelBuilder.Entity<Role>().HasMany(r => r.Permissions).WithOne(p => p.Role).IsRequired(true);
         }
