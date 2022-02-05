@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Domen;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using webApiFusion.Data;
+
 
 
 namespace webApiFusion.Controllers
@@ -17,19 +18,21 @@ namespace webApiFusion.Controllers
         private UserContext context=new UserContext();
         [HttpGet]
         [Route("api/[controller]/{userId}")]
-        public IActionResult GetUserPer(int userId)
+        public IActionResult Get(int userId)
         {
-           List<Role> roles = context.Role.ToList().FindAll(r => r.UserId == userId);
-            List<Permission> permissions = context.Permissions.ToList().FindAll(r => r.Role.UserId == userId);
-            List<Permission> p2 = new List<Permission>();
-            for(int i = 0; i < permissions.Count; i++)
+            List<UserRole> urs = context.userRole.ToList().FindAll(ur => ur.UserId == userId);
+            List<RolePermission> rps = new List<RolePermission>();
+            for (int i = 0; i < urs.Count; i++)
             {
-                Permission p = new Permission(permissions[i].PermissionId, permissions[i].name, permissions[i].RoleId);
-                p2.Add(p);
+                List<RolePermission> rp1 = context.rolePermission.ToList().FindAll(rp => rp.RoleId == urs[i].RoleId);
+                rps=rps.Concat(rp1).ToList();
             }
-            // Prethodna funkcija je uradjena zbog toga sto permission sadrzi role, a taj role sadrzi odredjenu listu permission-a.I prilikom prikaza 
-            // datih permissiona, dolazi do beskonacne petlje, iz tog razloga konstruktorom u funkciji je izbacen Role, vec samo stoji RoleId
-            return Ok(p2);
+            List<Permission> per = new List<Permission>();
+            for(int i = 0; i < rps.Count; i++)
+            {
+                per.Add(context.Permissions.Find(rps[i].PermissionId));
+            }
+            return Ok(per);
         }
     }
 }

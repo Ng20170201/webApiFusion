@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Domen;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace webApiFusion.Data
+namespace Domen
 {
     public class UserContext : DbContext
     {
@@ -19,10 +20,12 @@ namespace webApiFusion.Data
         public DbSet<User> User { get; set; }
         public DbSet<Role> Role { get; set; }
         public DbSet<Permission> Permissions { get; set; }
+        public DbSet<UserRole> userRole { get; set; }
+        public DbSet<RolePermission> rolePermission { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server = (localdb)\mssqllocaldb; Database = FusionUserApi; ");
+            optionsBuilder.UseSqlServer(@"Server = (localdb)\mssqllocaldb; Database = FusionDB; ");
         }
 
 
@@ -35,13 +38,18 @@ namespace webApiFusion.Data
 
             modelBuilder.Entity<Permission>().HasKey(p => new {p.PermissionId });
 
-           
+            modelBuilder.Entity<UserRole>().HasKey(ur => new { ur.UserId, ur.RoleId });
 
-            modelBuilder.Entity<User>().HasMany(u => u.Roles).WithOne(r => r.User).IsRequired(true);
+            modelBuilder.Entity<RolePermission>().HasKey(rp => new { rp.RoleId,rp.PermissionId });
 
-      
 
-            modelBuilder.Entity<Role>().HasMany(r => r.Permissions).WithOne(p => p.Role).IsRequired(true);
+
+
+            //modelBuilder.Entity<User>().HasMany(u => u.UserRoles).WithOne(r => r.User).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
+
+
+
+            //modelBuilder.Entity<Role>().HasMany(r => r.RolePermissions).WithOne(p => p.Role).IsRequired(true).OnDelete(DeleteBehavior.NoAction);
         }
 
 
